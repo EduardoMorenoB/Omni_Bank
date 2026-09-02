@@ -1,0 +1,3 @@
+1. La base de datos debe impedir que el saldo de una cuenta quede en numeros negativos. Saldo>=0
+2. La DB nó debe eliminar definitivamente a los clientes. Si un cliente cierra su cuenta esta pasara  a ponerse en un estado inactivo en lugar de borrar el clien te. Los datos deben conservarse.
+3.Rastreo de tiempo se refiere a que cuando una cuenta sea modificada debe guardar los datos compilados, junto con fecha y hora exacta de la moficacion. asi llevando un registro.
