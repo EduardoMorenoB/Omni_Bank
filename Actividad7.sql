@@ -28,7 +28,8 @@ VALUES
 ON CONFLICT (account_number) DO NOTHING;
 
 INSERT INTO core.transactions (
-    transaction_id, account_id, tx_type, amount, tx_timestamp, description
+    transaction_id, account_id, tx_type,
+    amount, tx_timestamp, description
 )
 VALUES
     ('10000000-0000-0000-0000-000000000001',
@@ -43,7 +44,8 @@ ON CONFLICT (transaction_id) DO NOTHING;
 
 WITH fee AS (
     INSERT INTO core.transactions (
-        transaction_id, account_id, tx_type, amount, tx_timestamp, description
+        transaction_id, account_id, tx_type,
+        amount, tx_timestamp, description
     )
     VALUES (
         '10000000-0000-0000-0000-000000000003',
@@ -54,12 +56,24 @@ WITH fee AS (
     ON CONFLICT (transaction_id) DO NOTHING
     RETURNING account_id, amount
 )
-UPDATE core.accounts
-SET balance = core.accounts.balance - fee.amount,
+UPDATE core.accounts AS a
+SET balance = a.balance - fee.amount,
     updated_at = CURRENT_TIMESTAMP
 FROM fee
-WHERE core.accounts.account_id = fee.account_id
-  AND core.accounts.account_number = 'ACCT-1001'
-RETURNING core.accounts.account_number, core.accounts.balance;
+WHERE a.account_id = fee.account_id
+  AND a.account_number = 'ACCT-1001'
+RETURNING a.account_number, a.balance;
 
 COMMIT;
+
+/*
+Pude notar que había realizado correctamente la inserción de los
+clientes, las cuentas y las transacciones iniciales, utilizando
+ON CONFLICT para evitar registros duplicados. Después de revisar
+mi actividad, observé que podía mejorar la organización del código
+y mantener una relación directa entre la inserción de la comisión
+y la actualización del saldo mediante RETURNING. También comprendí
+que esta estructura permite descontar los 50.00 únicamente cuando
+se registra una nueva comisión, evitando que el saldo vuelva a
+disminuir al ejecutar el archivo nuevamente.
+*/
